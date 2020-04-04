@@ -24,7 +24,6 @@
 
 #include <zxmacros.h>
 #include "view_templates.h"
-#include "common.h"
 
 #include <os_io_seproxyhal.h>
 #include <os.h>
