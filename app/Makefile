@@ -1,7 +1,7 @@
 #*******************************************************************************
 #   Ledger App
+#   (c) 2018-2020 Zondax GmbH
 #   (c) 2017 Ledger
-#   (c) 2018 ZondaX GmbH
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -19,21 +19,23 @@
 ifeq ($(BOLOS_SDK),)
 $(error BOLOS_SDK is not set)
 endif
+
+MY_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
 include $(BOLOS_SDK)/Makefile.defines
 
 # Main app configuration
 APPNAME = "Tendermint"
 APPVERSION_M=0
-APPVERSION_N=9
-APPVERSION_P=1
-
-ifeq ($(TARGET_NAME),TARGET_NANOS)
-APP_LOAD_PARAMS = --appFlags 0x00 --delete $(COMMON_LOAD_PARAMS) --path "44'/118'"
-endif
+APPVERSION_N=10
+APPVERSION_P=0
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-APP_LOAD_PARAMS = --appFlags 0x200 --delete $(COMMON_LOAD_PARAMS) --path "44'/118'"
+$(error Validation in Nano X devices is not supported)
 endif
+
+APPPATH = "44'/118'"
+APP_LOAD_PARAMS = --appFlags 0x200 --delete $(COMMON_LOAD_PARAMS) --path $(APPPATH)
 
 ifeq ($(TARGET_NAME),TARGET_NANOS)
 SCRIPT_LD:=$(CURDIR)/script.ld
@@ -49,6 +51,17 @@ $(error ICONNAME is not set)
 endif
 
 all: default
+	@echo "#!/usr/bin/env bash" > $(CURDIR)/pkg/zxtool.sh
+	@echo "APPNAME=\"${APPNAME}\"" >> $(CURDIR)/pkg/zxtool.sh
+	@echo "APPVERSION=\"${APPVERSION}\"" >> $(CURDIR)/pkg/zxtool.sh
+	@echo "APPPATH=\""${APPPATH}"\"" >> $(CURDIR)/pkg/zxtool.sh
+	@echo "LOAD_PARAMS=\"${COMMON_LOAD_PARAMS}\"" >> $(CURDIR)/pkg/zxtool.sh
+	@echo "DELETE_PARAMS=\"${COMMON_DELETE_PARAMS}\"" >> $(CURDIR)/pkg/zxtool.sh
+	@echo "APPHEX=\"" >> $(CURDIR)/pkg/zxtool.sh
+	@cat $(CURDIR)/bin/app.hex >> $(CURDIR)/pkg/zxtool.sh
+	@echo "\"" >> $(CURDIR)/pkg/zxtool.sh
+	@cat $(CURDIR)/../deps/ledger-zxlib/scripts/template.sh >> $(CURDIR)/pkg/zxtool.sh
+	@chmod +x $(CURDIR)/pkg/zxtool.sh
 
 ############
 # Platform
@@ -67,6 +80,7 @@ DEFINES += LEDGER_MAJOR_VERSION=$(APPVERSION_M) LEDGER_MINOR_VERSION=$(APPVERSIO
 
 DEFINES   += USB_SEGMENT_SIZE=64
 DEFINES   += HAVE_BOLOS_APP_STACK_CANARY
+DEFINES   += NDEBUG
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
 DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
@@ -85,19 +99,18 @@ SDK_SOURCE_PATH  += lib_ux
 else
 # Assume Nano S
 DEFINES       += IO_SEPROXYHAL_BUFFER_SIZE_B=128
-DEFINES       += HAVE_BOLOS_UX COMPLIANCE_UX_160 HAVE_UX_LEGACY
+DEFINES       += HAVE_BOLOS_UX COMPLIANCE_UX_160 HAVE_UX_LEGACY HAVE_UX_FLOW
 endif
 
 # X specific
 
 #Feature temporarily disabled
 DEFINES   += LEDGER_SPECIFIC
-#DEFINES += TESTING_ENABLED
 
 # Compiler, assembler, and linker
 
 ifneq ($(BOLOS_ENV),)
-$(info BOLOS_ENV=$(BOLOS_ENV))
+$(info BOLOS_ENV is $(BOLOS_ENV))
 CLANGPATH := $(BOLOS_ENV)/clang-arm-fropi/bin/
 GCCPATH := $(BOLOS_ENV)/gcc-arm-none-eabi-5_3-2016q1/bin/
 else
@@ -115,7 +128,7 @@ endif
 #########################
 
 CC := $(CLANGPATH)clang
-CFLAGS += -O3 -Os
+CFLAGS += -O3 -Os -Wno-unknown-pragmas
 
 AS := $(GCCPATH)arm-none-eabi-gcc
 AFLAGS +=
@@ -127,25 +140,30 @@ LDLIBS   += -lm -lgcc -lc
 ##########################
 include $(BOLOS_SDK)/Makefile.glyphs
 
-APP_SOURCE_PATH += src deps/ledger-zxlib/include deps/ledger-zxlib/src
+APP_SOURCE_PATH += $(MY_DIR)/src
+APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/include
+APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/src
+APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/app/common
 SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
 #SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
 SDK_SOURCE_PATH  += lib_ux
-endif
-
-load:
-	sudo -E python -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
-
-delete:
-	sudo -E python -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
 
 # Import generic rules from the SDK
 include $(BOLOS_SDK)/Makefile.rules
 
 #add dependency on custom makefile filename
 dep/%.d: %.c Makefile
+
+rust:
+	# Do nothing
+
+# load, delete and listvariants are provided to comply with Ledger requirements
+load:
+	python -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
+
+delete:
+	python -m ledgerblue.deleteApp $(COMMON_DELETE_PARAMS)
 
 listvariants:
 	@echo VARIANTS COIN tendermint
