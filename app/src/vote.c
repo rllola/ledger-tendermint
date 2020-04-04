@@ -16,11 +16,7 @@
 
 #include "vote.h"
 #include "buffering.h"
-#include "vote_buffer.h"
-#include "vote_parser.h"
 #include <zxmacros.h>
-
-#include <string.h>
 
 vote_state_t vote_state;
 vote_t vote;

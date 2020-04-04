@@ -16,7 +16,6 @@
 #pragma once
 
 typedef enum {
-    SECP256K1 = 0,
     ED25519 = 1
 } sigtype_t;
 

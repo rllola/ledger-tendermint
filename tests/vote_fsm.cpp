@@ -15,13 +15,7 @@
 ********************************************************************************/
 
 #include "gtest/gtest.h"
-#include <stdlib.h>
-#include <cstdio>
 #include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <array>
-#include <string>
 #include "vote_fsm.h"
 
 namespace {
@@ -198,5 +192,4 @@ namespace {
 
         EXPECT_EQ(0, try_state_transition());
     }
-
 }

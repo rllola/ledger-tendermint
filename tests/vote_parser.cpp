@@ -15,14 +15,8 @@
 ********************************************************************************/
 
 #include "gtest/gtest.h"
-#include <stdlib.h>
-#include <cstdio>
 #include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <array>
-#include <string>
-#include "lib/vote_parser.h"
+#include "vote_parser.h"
 
 namespace {
 
