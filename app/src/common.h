@@ -13,22 +13,10 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 ********************************************************************************/
+#pragma once
 
-#include "vote.h"
-#include "buffering.h"
-#include "vote_buffer.h"
-#include "vote_parser.h"
-#include <zxmacros.h>
+typedef enum {
+    ED25519 = 1
+} sigtype_t;
 
-#include <string.h>
-
-vote_state_t vote_state;
-vote_t vote;
-
-void vote_state_reset() {
-    explicit_bzero(&vote_state, sizeof(vote_state_t));
-}
-
-void vote_reset() {
-    buffering_reset();
-}
+extern sigtype_t current_sigtype;

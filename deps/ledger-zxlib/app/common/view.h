@@ -1,5 +1,6 @@
 /*******************************************************************************
-*   (c) 2018 ZondaX GmbH
+*   (c) 2018-2020 Zondax GmbH
+*   (c) 2016 Ledger
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -13,39 +14,29 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 ********************************************************************************/
+#pragma once
 
-#include <zxmacros.h>
-#include "buffering.h"
-#include "vote_buffer.h"
+#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
+#if defined(LEDGER_SPECIFIC)
+#include "bolos_target.h"
+#if defined(BOLOS_SDK)
+#include "os.h"
+#include "cx.h"
+#endif
 #endif
 
-#if defined(TARGET_NANOS)
-    #define RAM_BUFFER_SIZE 1024
-#else
-    #define RAM_BUFFER_SIZE 16384
-#endif
+/// view_init (initializes UI)
+void view_init();
 
-uint8_t ram_buffer[RAM_BUFFER_SIZE];
+/// view_idle_show (idle view - main menu + status)
+void view_idle_show(unsigned int ignored);
 
-void vote_initialize() {
-    buffering_init(ram_buffer, sizeof(ram_buffer), NULL, 0);
-}
+/// view_error (error view)
+void view_error_show();
 
-uint32_t vote_append(unsigned char *buffer, uint32_t length) {
-    return buffering_append(buffer, length);
-}
+// shows address in the screen
+void view_address_show();
 
-uint32_t vote_get_buffer_length() {
-    return buffering_get_buffer()->pos;
-}
-
-const uint8_t *vote_get_buffer() {
-    return buffering_get_buffer()->data;
-}
-
-#ifdef __cplusplus
-}
-#endif
+// Shows review screen + later sign menu
+void view_sign_show();
