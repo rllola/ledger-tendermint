@@ -18,8 +18,8 @@
 #include "app_main.h"
 
 #include "view.h"
-#include "lib/vote_buffer.h"
-#include "lib/vote_fsm.h"
+#include "vote_buffer.h"
+#include "vote_fsm.h"
 #include "signature.h"
 #include "actions.h"
 #include <zxmacros.h>

@@ -18,7 +18,7 @@
 #include "actions.h"
 #include "vote.h"
 #include "signature.h"
-#include "lib/vote_buffer.h"
+#include "vote_buffer.h"
 #include "apdu_codes.h"
 #include <zxmacros.h>
 
