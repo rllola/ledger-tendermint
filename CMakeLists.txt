@@ -30,11 +30,11 @@ string(APPEND CMAKE_LINKER_FLAGS " -fsanitize=address -fno-omit-frame-pointer")
 ##############################################################
 #  static libs
 file(GLOB_RECURSE LIB_SRC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ledger/src/lib/vote.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ledger/src/lib/vote_fsm.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ledger/src/lib/vote_buffer.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ledger/src/lib/vote_parser.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ledger/deps/ledger-zxlib/src/buffering.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/src/vote.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/src/vote_fsm.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/src/vote_buffer.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/src/vote_parser.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/buffering.c
         )
 
 file(GLOB_RECURSE TESTS_SRC
@@ -42,12 +42,12 @@ file(GLOB_RECURSE TESTS_SRC
 
 add_library(app_lib STATIC ${LIB_SRC})
 target_include_directories(app_lib PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ledger/deps/ledger-zxlib/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/include
         )
 
 add_executable(unittests ${TESTS_SRC})
 target_include_directories(unittests PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/ledger/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/app/src
         ${gtest_SOURCE_DIR}/include
         ${gmock_SOURCE_DIR}/include
         ${CONAN_INCLUDE_DIRS_FMT}

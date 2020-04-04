@@ -22,7 +22,7 @@
 #include <stdexcept>
 #include <array>
 #include <string>
-#include "lib/vote_fsm.h"
+#include "vote_fsm.h"
 
 namespace {
     TEST(VoteParserTest, NotInitialized) {
