@@ -22,11 +22,11 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
-// #define HDPATH_0_DEFAULT     (0x80000000 | 0x2c)
-// #define HDPATH_1_DEFAULT     (0x80000000 | 0x76)
-// #define HDPATH_2_DEFAULT     (0x80000000 | 0)
-// #define HDPATH_3_DEFAULT     (0)
-// #define HDPATH_4_DEFAULT     (0)
+#define HDPATH_0_DEFAULT     (0x80000000 | 0x2c)
+#define HDPATH_1_DEFAULT     (0x80000000 | 0x76)
+#define HDPATH_2_DEFAULT     (0x80000000 | 0)
+#define HDPATH_3_DEFAULT     (0)
+#define HDPATH_4_DEFAULT     (0)
 
 // #define MENU_MAIN_APP_LINE1 "Cosmos"
 

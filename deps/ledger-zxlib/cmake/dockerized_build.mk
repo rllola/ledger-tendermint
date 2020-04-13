@@ -20,7 +20,6 @@ LEDGER_SRC=$(CURDIR)/app
 DOCKER_APP_SRC=/project
 DOCKER_APP_BIN=$(DOCKER_APP_SRC)/app/bin/app.elf
 
-DOCKER_IMAGE=zondax/ledger-docker-bolos:latest
 DOCKER_BOLOS_SDK=/project/deps/nanos-secure-sdk
 DOCKER_BOLOS_SDKX=/project/deps/nano2-sdk
 
@@ -28,6 +27,14 @@ SCP_PUBKEY=049bc79d139c70c83a4b19e8922e5ee3e0080bb14a2e8b0752aa42cda90a1463f689b
 SCP_PRIVKEY=ff701d781f43ce106f72dc26a46b6a83e053b5d07bb3d4ceab79c91ca822a66b
 
 INTERACTIVE:=$(shell [ -t 0 ] && echo 1)
+USERID:=$(shell id -u)
+$(info USERID: $(USERID))
+
+ifeq ($(USERID),1001)
+DOCKER_IMAGE=zondax/builder-bolos-1001:latest
+else
+DOCKER_IMAGE=zondax/builder-bolos:latest
+endif
 
 ifdef INTERACTIVE
 INTERACTIVE_SETTING:="-i"
@@ -51,6 +58,23 @@ define run_docker
 	-e DISPLAY=$(shell echo ${DISPLAY}) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
 	$(DOCKER_IMAGE) \
+	"$(2)"
+endef
+
+define run_zemu
+	docker run $(TTY_SETTING) $(INTERACTIVE_SETTING) --rm \
+	--privileged \
+	-e SCP_PRIVKEY=$(SCP_PRIVKEY) \
+	-e BOLOS_SDK=$(1) \
+	-e BOLOS_ENV=/opt/bolos \
+	-p 1234:1234 \
+	-p 8001:8001 \
+	-p 9998-9999:9998-9999 \
+	-u $(shell id -u) \
+	-v $(shell pwd):/project \
+	-e DISPLAY=$(shell echo ${DISPLAY}) \
+	-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+	zondax/builder-zemu \
 	"$(2)"
 endef
 
@@ -86,12 +110,8 @@ clean:
 shell:
 	$(call run_docker,$(DOCKER_BOLOS_SDK) -t,bash)
 
-debug: build
-	$(call run_docker,$(DOCKER_BOLOS_SDK),/home/zondax/speculos/speculos.py --debug --display headless -t $(DOCKER_APP_BIN))
-
-emu: build
-	$(call run_docker,$(DOCKER_BOLOS_SDK),/home/zondax/speculos/speculos.py --ontop --zoom 3 --vnc-port 8001 $(DOCKER_APP_BIN))
-
+debug:
+	$(call run_zemu,$(DOCKER_BOLOS_SDK),/home/zondax/speculos/speculos.py --debug --display headless -t $(DOCKER_APP_BIN))
 
 load:
 	${LEDGER_SRC}/pkg/zxtool.sh load

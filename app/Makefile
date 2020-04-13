@@ -31,7 +31,7 @@ APPVERSION_N=10
 APPVERSION_P=0
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-$(error Validation in Nano X devices is not supported)
+$(error Validation in Nano X devices are not supported)
 endif
 
 APPPATH = "44'/118'"
@@ -143,7 +143,6 @@ include $(BOLOS_SDK)/Makefile.glyphs
 APP_SOURCE_PATH += $(MY_DIR)/src
 APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/include
 APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/src
-APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/app/common
 SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
 
 #SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl

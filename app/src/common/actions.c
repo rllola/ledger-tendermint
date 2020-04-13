@@ -21,6 +21,7 @@
 #include "vote_buffer.h"
 #include "apdu_codes.h"
 #include <zxmacros.h>
+#include "coin.h"
 
 const uint8_t bip32_depth = 5;
 uint32_t bip32_path[5];
@@ -85,11 +86,11 @@ void actions_getkeys() {
     cx_ecfp_public_key_t cx_publicKey;
     uint8_t privateKeyData[32];
 
-    bip32_path[0] = 0x80000000 | 44;
-    bip32_path[1] = 0x80000000 | 118;
-    bip32_path[2] = 0x80000000 | 0;
-    bip32_path[3] = 0x00000000 | 0;
-    bip32_path[4] = 0x00000000 | 0;
+    bip32_path[0] = HDPATH_0_DEFAULT;
+    bip32_path[1] = HDPATH_1_DEFAULT;
+    bip32_path[2] = HDPATH_2_DEFAULT;
+    bip32_path[3] = HDPATH_3_DEFAULT;
+    bip32_path[4] = HDPATH_4_DEFAULT;
 
     // Generate keys
     os_perso_derive_node_bip32_seed_key(

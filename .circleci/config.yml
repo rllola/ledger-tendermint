@@ -1,5 +1,4 @@
-version: 2.1
-
+version: 2
 jobs:
   build:
     docker:
@@ -36,7 +35,7 @@ jobs:
       - store_artifacts:
           path: /home/zondax/project/app/pkg/zxtool.sh
       - run: /home/zondax/go/bin/ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete $(/home/zondax/project/app/pkg/zxtool.sh version) /home/zondax/project/app/pkg/zxtool.sh
-        
+
 workflows:
   version: 2
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
+*   (c) 2018-2020 Zondax GmbH
 *   (c) 2016 Ledger
-*   (c) 2018, 2019 ZondaX GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -96,24 +96,14 @@ const ux_flow_step_t *const ux_update_flow [] = {
 
 ux_state_t ux;
 
-//------ View elements
-const ux_menu_entry_t menu_main[];
-const ux_menu_entry_t menu_about[];
+void os_exit(uint32_t id) {
+    os_sched_exit(0);
+}
 
 const ux_menu_entry_t menu_main[] = {
-#ifdef TESTING_ENABLED
-        {NULL, NULL, 0, &C_icon_app, "Tendermint TEST!", "Validator", 0, 0},
-#else
-        {NULL, NULL, 0, &C_icon_app, "Tendermint", "Validator", 0, 0},
-#endif
-        {menu_about, NULL, 0, NULL, "About", NULL, 0, 0},
-        {NULL, os_sched_exit, 0, &C_icon_dashboard, "Quit app", NULL, 50, 29},
-        UX_MENU_END
-};
-
-const ux_menu_entry_t menu_about[] = {
-        {NULL, NULL, 0, NULL, "Version", APPVERSION, 0, 0},
-        {menu_main, NULL, 2, &C_icon_back, "Back", NULL, 61, 40},
+        {NULL, NULL, 0, &C_icon_app, MENU_MAIN_APP_LINE1, MENU_MAIN_APP_LINE2, 0, 0},
+        {NULL, NULL, 0, NULL, "v"APPVERSION, NULL, 0, 0},
+        {NULL, os_exit, 0, &C_icon_dashboard, "Quit app", NULL, 50, 29},
         UX_MENU_END
 };
 
@@ -259,13 +249,13 @@ void view_set_data() {
 void view_set_pk(uint8_t public_key[32]) {
     // split pubkey
 #if defined(TARGET_NANOS)
-    array_to_hexstr((char *) view.public_key, public_key, 4);
+    array_to_hexstr((char *) view.public_key, 8, public_key, 4);
     view.public_key[8] = '.';
     view.public_key[9] = '.';
-    array_to_hexstr((char *) view.public_key + 10, public_key + 28, 4);
+    array_to_hexstr((char *) view.public_key + 10, 8, public_key + 28, 4);
 #elif defined(TARGET_NANOX)
-    array_to_hexstr((char *) view.public_key, public_key, 32);
-    array_to_hexstr((char *) view.public_key1, public_key, 16);
-    array_to_hexstr((char *) view.public_key2, public_key+16, 16);
+    array_to_hexstr((char *) view.public_key, 64, public_key, 32);
+    array_to_hexstr((char *) view.public_key1, 32, public_key, 16);
+    array_to_hexstr((char *) view.public_key2, 32, public_key+16, 16);
 #endif
 }

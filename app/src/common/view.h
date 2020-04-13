@@ -23,6 +23,14 @@
 #define MAX_CHARS_PER_VALUE_LINE    128
 #define MAX_SCREEN_LINE_WIDTH       60
 
+#ifdef TESTING_ENABLED
+#define MENU_MAIN_APP_LINE1     "Tendermint"
+#else
+#define MENU_MAIN_APP_LINE1     "Tendermint TEST!"
+#endif
+
+#define MENU_MAIN_APP_LINE2     "Validator"
+
 /// view_init
 void view_init();
 
