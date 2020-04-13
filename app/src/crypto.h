@@ -1,6 +1,5 @@
 /*******************************************************************************
-*   (c) 2016 Ledger
-*   (c) 2018 ZondaX GmbH
+*   (c) 2019 Zondax GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -14,26 +13,21 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 ********************************************************************************/
+
 #pragma once
 
-#include <stdbool.h>
-#include "apdu_codes.h"
-#include "common.h"
+#include "os.h"
 
-#define CLA                         0x56
+extern uint8_t public_key[32];
+extern uint8_t keys_initialized;
 
-#define OFFSET_CLA                  0
-#define OFFSET_INS                  1  //< Instruction offset
-#define OFFSET_PCK_INDEX            2  //< Package index offset
-#define OFFSET_PCK_COUNT            3  //< Package count offset
-#define OFFSET_DATA                 5  //< Data offset
+void keys_precache();
 
-#define INS_GET_VERSION             0
-#define INS_PUBLIC_KEY_ED25519      1
-#define INS_SIGN_ED25519            2
-
-void app_init();
-
-void app_main();
-
-unsigned int sign_vote();
+/// sign_ed25519
+/// \param message
+/// \param message_length
+/// \param signature
+/// \param signature_capacity
+/// \return size of the signature
+uint16_t sign_ed25519(const uint8_t *message, unsigned int message_length,
+                      uint8_t *signature, unsigned int signature_capacity);

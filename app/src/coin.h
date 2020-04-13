@@ -22,15 +22,26 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
-#define HDPATH_0_DEFAULT     (0x80000000 | 0x2c)
-#define HDPATH_1_DEFAULT     (0x80000000 | 0x76)
-#define HDPATH_2_DEFAULT     (0x80000000 | 0)
-#define HDPATH_3_DEFAULT     (0)
-#define HDPATH_4_DEFAULT     (0)
+#define HDPATH_LEN_DEFAULT   5
 
-// #define MENU_MAIN_APP_LINE1 "Cosmos"
+#define HDPATH_0_DEFAULT     (0x80000000u | 0x2cu)
+#define HDPATH_1_DEFAULT     (0x80000000u | 0x76u)
+#define HDPATH_2_DEFAULT     (0x80000000u | 0u)
+#define HDPATH_3_DEFAULT     (0u)
+#define HDPATH_4_DEFAULT     (0u)
 
-// #define VIEW_ADDRESS_BUFFER_OFFSET    (PK_LEN)
+#define PK_LEN_ED25519       32u
+
+#define VIEW_ADDRESS_OFFSET_ED25519         (PK_LEN_ED25519)
+
+typedef enum {
+    ED25519 = 1
+} sigtype_t;
+
+#define MENU_MAIN_APP_LINE1     "Tendermint"
+#define MENU_MAIN_APP_LINE2     "Validator"
+
+extern sigtype_t current_sigtype;
 
 #ifdef __cplusplus
 }

@@ -40,9 +40,6 @@ typedef struct {
 extern vote_state_t vote_state;
 extern vote_t vote;
 
-// Initializes vote context
-void vote_initialize();
-
 /// Clears the vote buffer
 void vote_reset();
 

@@ -1,4 +1,5 @@
 /*******************************************************************************
+*   (c) 2016 Ledger
 *   (c) 2018 ZondaX GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +16,23 @@
 ********************************************************************************/
 #pragma once
 
-typedef enum {
-    ED25519 = 1
-} sigtype_t;
+#include "os.h"
+#include "cx.h"
 
-extern sigtype_t current_sigtype;
+#define MAX_CHARS_PER_KEY_LINE      64
+#define MAX_CHARS_PER_VALUE_LINE    128
+#define MAX_SCREEN_LINE_WIDTH       60
+
+/// view_init
+void view_init();
+
+/// view_idle
+void view_idle();
+
+void view_set_data();
+
+void view_set_pk(uint8_t public_key[32]);
+
+void view_display_vote_init();
+
+void view_display_vote_processing();

@@ -12,13 +12,13 @@ UI Specification
 
 **Right click** - clicking and releasing right button
 
-**Double click** - clicking and releasing both left and right 
+**Double click** - clicking and releasing both left and right
 
 **Left hold** - clicking and holding left button
 
 **Right hold** - clicking and holding right button
 
-**Double hold** - clicking and holding both left and right 
+**Double hold** - clicking and holding both left and right
 
 ## UI pages:
 ### A. 'Welcome' page
@@ -27,7 +27,7 @@ UI Specification
 Screen 1. (default)
 ```
 LINE1:
-LINE2:                      Cosmos TEST!
+LINE2:                      Tendermint
 LINE3: [tendermint icon]    Validator       [down icon]
 ```
 
@@ -36,7 +36,7 @@ LINE3: [tendermint icon]    Validator       [down icon]
 Screen 2.
 ```
 LINE1:
-LINE2:  [up icon]             About         [down icon]
+LINE2:  [up icon]             v0.11.0       [down icon]
 LINE3:
 ```
 
@@ -59,21 +59,21 @@ Exits the app.
 #### Layout:
 Screen 1. (default)
 ```
-LINE1:  [X]       Init Validation       [OK]  
+LINE1:  [X]       Init Validation       [OK]
 LINE2:            Height: {height}
 LINE3:            Round:  {round}
 ```
  - Show in the screen the values and ask for confirmation.
  - While in this mode, any signature requests should be immediately rejected.
  - If the user confirms the values, the ledger will initialize the values and move back to signing mode
- - If the user reject, the ledger will keep values as not-initialized and move back to signing mode 
- 
+ - If the user reject, the ledger will keep values as not-initialized and move back to signing mode
+
 ### C. 'Validation' page
 
 #### Layout:
 Screen 1. (default)
 ```
-LINE1:            Validating  
+LINE1:            Validating
 LINE2:            Public Key (scrolling)
 LINE3:            Height: {height}
 ```

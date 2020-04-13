@@ -1,6 +1,6 @@
 /*******************************************************************************
 *   (c) 2016 Ledger
-*   (c) 2018 ZondaX GmbH
+*   (c) 2018 Zondax GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -16,21 +16,28 @@
 ********************************************************************************/
 #pragma once
 
-#include <stdint.h>
-#include <os_io_seproxyhal.h>
-#include <os.h>
-#include <cx.h>
+#include <stdbool.h>
+#include "apdu_codes.h"
 
-extern const uint8_t bip32_depth;
-extern uint32_t bip32_path[5];
+#define CLA                             0x56
 
-extern unsigned char public_key[32];
-extern cx_ecfp_private_key_t cx_privateKey;
-extern uint8_t keys_initialized;
+#define OFFSET_CLA                      0
+#define OFFSET_INS                      1  //< Instruction offset
+#define OFFSET_P1                       2  //< P1
+#define OFFSET_P2                       3  //< P2
+#define OFFSET_DATA_LEN                 4  //< Data Length
+#define OFFSET_DATA                     5  //< Data offset
 
+#define APDU_MIN_LENGTH                 5
 
-void action_reset();
-void action_reject();
-void action_accept();
-int action_sign();
-void actions_getkeys();
+#define OFFSET_PAYLOAD_TYPE             OFFSET_P1
+
+#define INS_GET_VERSION             0
+#define INS_PUBLIC_KEY_ED25519      1
+#define INS_SIGN_ED25519            2
+
+void app_init();
+
+void app_main();
+
+unsigned int sign_vote();

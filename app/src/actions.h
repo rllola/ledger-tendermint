@@ -1,5 +1,5 @@
 /*******************************************************************************
-*  (c) 2019 Zondax GmbH
+*   (c) 2019 Zondax GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -15,10 +15,13 @@
 ********************************************************************************/
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
+#include <os_io_seproxyhal.h>
+#include <os.h>
+#include <cx.h>
 
-#ifdef __cplusplus
-}
-#endif
+void action_reset();
+void action_reject();
+void action_accept();
+int action_sign();
+void actions_getkeys();

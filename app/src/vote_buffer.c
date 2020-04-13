@@ -21,10 +21,11 @@
 extern "C" {
 #endif
 
-#if defined(TARGET_NANOS)
-    #define RAM_BUFFER_SIZE 1024
-#else
-    #define RAM_BUFFER_SIZE 16384
+#define RAM_BUFFER_SIZE 1024
+
+#if defined(TARGET_NANOX)
+#undef RAM_BUFFER_SIZE
+#define RAM_BUFFER_SIZE 16384
 #endif
 
 uint8_t ram_buffer[RAM_BUFFER_SIZE];

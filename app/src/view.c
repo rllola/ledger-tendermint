@@ -30,6 +30,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include <stdio.h>
+#include "coin.h"
 
 struct {
     char height[MAX_SCREEN_LINE_WIDTH];
@@ -257,5 +258,7 @@ void view_set_pk(uint8_t public_key[32]) {
     array_to_hexstr((char *) view.public_key, 64, public_key, 32);
     array_to_hexstr((char *) view.public_key1, 32, public_key, 16);
     array_to_hexstr((char *) view.public_key2, 32, public_key+16, 16);
+#elif
+    #error "Unexpected target"
 #endif
 }

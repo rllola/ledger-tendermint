@@ -22,6 +22,9 @@ extern "C" {
 #include "vote.h"
 #include "vote_parser.h"
 
+// Initializes vote context
+void vote_initialize();
+
 /// Appends buffer to the end of the current transaction buffer
 /// Transaction buffer will grow until it reaches the maximum allowed size
 /// \param buffer

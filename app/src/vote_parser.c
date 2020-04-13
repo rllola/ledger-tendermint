@@ -35,7 +35,7 @@ int64_t decode_amino_64bits(const uint8_t *p) {
     int64_t v = 0;
     p += 7;
     for (int8_t i = 0; i < 8; i++, p--) {
-        v <<= 8;
+        v <<= 8u;
         v += *p;
     }
     return v;

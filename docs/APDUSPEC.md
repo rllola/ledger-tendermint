@@ -1,4 +1,4 @@
-# Tendermint Validator App - Ledger Nano S
+# Tendermint Validator App
 ## General structure
 
 The general structure of commands and responses is as follows:
@@ -82,7 +82,7 @@ The general structure of commands and responses is as follows:
 ### SIGN_ED25519
 
 This command needs to be called several times until the complete message has been uploaded.
-The validator app will implement double-sign prevention. 
+The validator app will implement double-sign prevention.
 
 Based on these values, the app will not sign anything that is:
 - A lower height

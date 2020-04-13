@@ -1,6 +1,6 @@
 /*******************************************************************************
+*   (c) 2018, 2019 Zondax GmbH
 *   (c) 2016 Ledger
-*   (c) 2018, 2019 ZondaX GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -17,16 +17,17 @@
 
 #include "app_main.h"
 
-#include "view.h"
-#include "vote_buffer.h"
-#include "vote_fsm.h"
-#include "signature.h"
-#include "actions.h"
-#include <zxmacros.h>
-
+#include <string.h>
 #include <os_io_seproxyhal.h>
 #include <os.h>
-#include <string.h>
+
+#include "view.h"
+#include "actions.h"
+#include "vote_buffer.h"
+#include "vote_fsm.h"
+#include "crypto.h"
+#include "coin.h"
+#include "zxmacros.h"
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
@@ -92,13 +93,6 @@ unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len) {
     return 0;
 }
 
-void app_init() {
-    io_seproxyhal_init();
-    USB_power(0);
-    USB_power(1);
-    view_idle();
-}
-
 bool initializeBip32(uint8_t *depth, uint32_t path[10], uint32_t rx, uint32_t offset) {
     if (rx < offset + 1) {
         return 0;
@@ -116,8 +110,8 @@ bool initializeBip32(uint8_t *depth, uint32_t path[10], uint32_t rx, uint32_t of
 }
 
 bool process_chunk(volatile uint32_t *tx, uint32_t rx) {
-    int packageIndex = G_io_apdu_buffer[OFFSET_PCK_INDEX];
-    int packageCount = G_io_apdu_buffer[OFFSET_PCK_COUNT];
+    int packageIndex = G_io_apdu_buffer[OFFSET_P1];
+    int packageCount = G_io_apdu_buffer[OFFSET_P2];
 
     uint16_t offset = OFFSET_DATA;
     if (rx < offset) {
@@ -136,11 +130,6 @@ bool process_chunk(volatile uint32_t *tx, uint32_t rx) {
     return packageIndex == packageCount;
 }
 
-void extract_keys() {
-    actions_getkeys();
-    view_set_pk(public_key);
-}
-
 void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
     uint16_t sw = 0;
 
@@ -152,7 +141,7 @@ void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
                 THROW(APDU_CODE_CLA_NOT_SUPPORTED);
             }
 
-            if (rx < 5) {
+            if (rx < APDU_MIN_LENGTH) {
                 THROW(APDU_CODE_WRONG_LENGTH);
             }
 
@@ -166,7 +155,14 @@ void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
                     G_io_apdu_buffer[1] = LEDGER_MAJOR_VERSION;
                     G_io_apdu_buffer[2] = LEDGER_MINOR_VERSION;
                     G_io_apdu_buffer[3] = LEDGER_PATCH_VERSION;
-                    *tx += 4;
+                    G_io_apdu_buffer[4] = !IS_UX_ALLOWED;
+
+                    G_io_apdu_buffer[5] = (TARGET_ID >> 24) & 0xFF;
+                    G_io_apdu_buffer[6] = (TARGET_ID >> 16) & 0xFF;
+                    G_io_apdu_buffer[7] = (TARGET_ID >> 8) & 0xFF;
+                    G_io_apdu_buffer[8] = (TARGET_ID >> 0) & 0xFF;
+
+                    *tx += 9;
                     THROW(APDU_CODE_OK);
                     break;
                 }
@@ -246,15 +242,25 @@ void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
     END_TRY;
 }
 
+void app_init() {
+    io_seproxyhal_init();
+    USB_power(0);
+    USB_power(1);
+    view_idle();
+
+    vote_state_reset();
+    keys_initialized = 0;
+
+    // Extract keys and cache pubkey
+    actions_getkeys();
+    view_set_pk(public_key);
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 
 void app_main() {
     volatile uint32_t rx = 0, tx = 0, flags = 0;
-
-    vote_state_reset();
-    keys_initialized = 0;
-    extract_keys();
 
     for (;;) {
         volatile uint16_t sw = 0;
@@ -296,4 +302,3 @@ void app_main() {
 }
 
 #pragma clang diagnostic pop
-
