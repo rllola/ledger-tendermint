@@ -27,7 +27,7 @@ include $(BOLOS_SDK)/Makefile.defines
 # Main app configuration
 APPNAME = "Tendermint"
 APPVERSION_M=0
-APPVERSION_N=11
+APPVERSION_N=12
 APPVERSION_P=0
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)

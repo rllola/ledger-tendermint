@@ -15,6 +15,7 @@
 *  limitations under the License.
 ********************************************************************************/
 
+#include "app_mode.h"
 #include "view.h"
 #include "view_internal.h"
 #include "actions.h"
@@ -24,16 +25,18 @@
 #include "zxmacros.h"
 #include "view_templates.h"
 #include "tx.h"
+#include "addr.h"
 
 #include <string.h>
 #include <stdio.h>
 
 #if defined(TARGET_NANOS)
 
+void h_expert_toggle();
+void h_expert_update();
 void h_review_button_left();
 void h_review_button_right();
-void view_review_show();
-void view_sign_show_s();
+void view_review_decision_s();
 
 ux_state_t ux;
 
@@ -139,8 +142,10 @@ static unsigned int view_error_button(unsigned int button_mask, unsigned int but
 static unsigned int view_review_button(unsigned int button_mask, unsigned int button_mask_counter) {
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT:
-            // Press both left and right buttons to quit
-            view_sign_show_s();
+            if (app_mode_expert()) {
+                // Press both left and right buttons to quit
+                view_review_decision_s();
+            }
             break;
         case BUTTON_EVT_RELEASED | BUTTON_LEFT:
             // Press left to progress to the previous element
@@ -158,7 +163,15 @@ static unsigned int view_review_button(unsigned int button_mask, unsigned int bu
 const bagl_element_t *view_prepro(const bagl_element_t *element) {
     switch (element->component.userid) {
         case UIID_ICONLEFT:
+            if (!h_paging_can_decrease()){
+                return NULL;
+            }
+            UX_CALLBACK_SET_INTERVAL(2000);
+            break;
         case UIID_ICONRIGHT:
+            if (!h_paging_can_increase()){
+                return NULL;
+            }
             UX_CALLBACK_SET_INTERVAL(2000);
             break;
         case UIID_LABELSCROLL:
@@ -170,19 +183,26 @@ const bagl_element_t *view_prepro(const bagl_element_t *element) {
     return element;
 }
 
+const bagl_element_t *view_prepro_idle(const bagl_element_t *element) {
+    switch (element->component.userid) {
+        case UIID_ICONLEFT:
+        case UIID_ICONRIGHT:
+            return NULL;
+    }
+    return element;
+}
+
 void h_review_button_left() {
     h_paging_decrease();
 
-    view_error_t err = h_review_update_data();
+    zxerr_t err = h_review_update_data();
     switch(err) {
-        case view_no_error:
-            view_review_show();
-            UX_WAIT();
+        case zxerr_ok:
+            UX_DISPLAY(view_review, view_prepro);
             break;
-        case view_no_data:
-            view_sign_show_s();
+        case zxerr_no_data:
+            view_review_decision_s();
             break;
-        case view_error_detected:
         default:
             view_error_show();
             UX_WAIT();
@@ -193,17 +213,15 @@ void h_review_button_left() {
 void h_review_button_right() {
     h_paging_increase();
 
-    view_error_t err = h_review_update_data();
+    zxerr_t err = h_review_update_data();
 
     switch(err) {
-        case view_no_error:
-            view_review_show();
-            UX_WAIT();
+        case zxerr_ok:
+            UX_DISPLAY(view_review, view_prepro);
             break;
-        case view_no_data:
-            view_sign_show_s();
+        case zxerr_no_data:
+            view_review_decision_s();
             break;
-        case view_error_detected:
         default:
             view_error_show();
             UX_WAIT();

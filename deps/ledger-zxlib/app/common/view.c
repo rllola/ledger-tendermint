@@ -27,56 +27,57 @@
 #include "zxmacros.h"
 #include "view_templates.h"
 #include "tx.h"
+#include "addr.h"
+#include "app_mode.h"
+#include "zxerror.h"
 
 #include <string.h>
 #include <stdio.h>
 
 view_t viewdata;
 
-void h_address_accept(unsigned int _) {
+void h_approve(unsigned int _) {
     UNUSED(_);
-    view_idle_show(0);
+    view_idle_show(0, NULL);
     UX_WAIT();
-    app_reply_address(viewdata.addrKind);
+    if (viewdata.viewfuncAccept != NULL) {
+        viewdata.viewfuncAccept();
+    }
+}
+
+void h_reject(unsigned int _) {
+    UNUSED(_);
+    view_idle_show(0, NULL);
+    UX_WAIT();
+    app_reject();
 }
 
 void h_error_accept(unsigned int _) {
     UNUSED(_);
-    view_idle_show(0);
+    view_idle_show(0, NULL);
     UX_WAIT();
     app_reply_error();
 }
 
-void h_sign_accept(unsigned int _) {
-    UNUSED(_);
-
-    const uint8_t replyLen = app_sign();
-
-    view_idle_show(0);
-    UX_WAIT();
-
-    if (replyLen > 0) {
-        set_code(G_io_apdu_buffer, replyLen, APDU_CODE_OK);
-        io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, replyLen + 2);
-    } else {
-        set_code(G_io_apdu_buffer, 0, APDU_CODE_SIGN_VERIFY_ERROR);
-        io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, 2);
-    }
-}
-
-void h_sign_reject(unsigned int _) {
-    UNUSED(_);
-    view_idle_show(0);
-    UX_WAIT();
-
-    set_code(G_io_apdu_buffer, 0, APDU_CODE_COMMAND_NOT_ALLOWED);
-    io_exchange(CHANNEL_APDU | IO_RETURN_AFTER_TX, 2);
-}
+///////////////////////////////////
+// Paging related
 
 void h_paging_init() {
     viewdata.itemIdx = 0;
     viewdata.pageIdx = 0;
     viewdata.pageCount = 1;
+}
+
+uint8_t h_paging_can_increase() {
+    if (viewdata.pageIdx + 1 < viewdata.pageCount) {
+        return 1;
+    } else {
+        // passed page count, go to next index
+        if (viewdata.itemIdx + 1 < viewdata.itemCount) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void h_paging_increase() {
@@ -92,6 +93,17 @@ void h_paging_increase() {
     }
 }
 
+uint8_t h_paging_can_decrease() {
+    if (viewdata.pageIdx != 0) {
+        return 1;
+    } else {
+        if (viewdata.itemIdx > 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void h_paging_decrease() {
     if (viewdata.pageIdx != 0) {
         viewdata.pageIdx--;
@@ -99,29 +111,47 @@ void h_paging_decrease() {
         if (viewdata.itemIdx > 0) {
             viewdata.itemIdx--;
             // jump to last page. update will cap this value
-            viewdata.pageIdx = VIEW_ADDRESS_LAST_PAGE_DEFAULT;
+            viewdata.pageIdx = 255;
         }
     }
 }
 
-void h_paging_set_page_count(uint8_t pageCount) {
-    viewdata.pageCount = pageCount;
-    if (viewdata.pageIdx > viewdata.pageCount) {
-        viewdata.pageIdx = viewdata.pageCount - 1;
-    }
-}
+///////////////////////////////////
+// Paging related
 
-view_error_t h_review_update_data() {
-    tx_error_t err = tx_no_error;
+zxerr_t h_review_update_data() {
+    if (viewdata.viewfuncGetNumItems == NULL) {
+        return zxerr_no_data;
+    }
 
     do {
-        err = tx_getItem(viewdata.itemIdx,
-                         viewdata.key, MAX_CHARS_PER_KEY_LINE,
-                         viewdata.value, MAX_CHARS_PER_VALUE1_LINE,
-                         viewdata.pageIdx, &viewdata.pageCount);
+        viewdata.pageCount = 1;
+        CHECK_ZXERR(viewdata.viewfuncGetNumItems(&viewdata.itemCount))
 
-        if (err == tx_no_data) {
-            return view_no_data;
+        // be sure we are not out of bounds
+        CHECK_ZXERR(viewdata.viewfuncGetItem(
+                viewdata.itemIdx,
+                viewdata.key, MAX_CHARS_PER_KEY_LINE,
+                viewdata.value, MAX_CHARS_PER_VALUE1_LINE,
+                0, &viewdata.pageCount))
+        if (viewdata.pageCount != 0 && viewdata.pageIdx > viewdata.pageCount) {
+            // try again and get last page
+            viewdata.pageIdx = viewdata.pageCount - 1;
+        }
+        CHECK_ZXERR(viewdata.viewfuncGetItem(
+                viewdata.itemIdx,
+                viewdata.key, MAX_CHARS_PER_KEY_LINE,
+                viewdata.value, MAX_CHARS_PER_VALUE1_LINE,
+                viewdata.pageIdx, &viewdata.pageCount))
+
+        viewdata.itemCount++;
+
+        if (viewdata.pageCount > 1) {
+            uint8_t keyLen = strlen(viewdata.key);
+            if (keyLen < MAX_CHARS_PER_KEY_LINE) {
+                snprintf(viewdata.key + keyLen, MAX_CHARS_PER_KEY_LINE - keyLen, " [%d/%d]", viewdata.pageIdx + 1,
+                         viewdata.pageCount);
+            }
         }
 
         if (viewdata.pageCount == 0) {
@@ -129,24 +159,12 @@ view_error_t h_review_update_data() {
         }
     } while (viewdata.pageCount == 0);
 
-    if (err != tx_no_error) {
-        return view_error_detected;
-    }
-
     splitValueField();
-    return view_no_error;
+    return zxerr_ok;
 }
 
-view_error_t h_addr_update_item(uint8_t idx) {
-    MEMZERO(viewdata.value, MAX_CHARS_PER_VALUE1_LINE);
-
-    switch (idx) {
-        case 0: return view_printAddr();
-        case 1: return view_printPath();
-        default:
-            return view_error_detected;
-    }
-}
+///////////////////////////////////
+// General
 
 void io_seproxyhal_display(const bagl_element_t *element) {
     io_seproxyhal_display_default((bagl_element_t *) element);
@@ -156,14 +174,24 @@ void view_init(void) {
     UX_INIT();
 }
 
-void view_idle_show(unsigned int ignored) {
-    view_idle_show_impl();
+void view_idle_show(uint8_t item_idx, char *statusString) {
+    view_idle_show_impl(item_idx, statusString);
 }
 
-void view_address_show(address_kind_e addressKind) {
-    viewdata.addrKind = addressKind;
-    viewdata.itemCount = VIEW_ADDRESS_ITEM_COUNT;          // Address, path, etc.
-    view_address_show_impl();
+void view_message_show(char *title, char *message) {
+    view_message_impl(title, message);
+}
+
+void view_review_init(viewfunc_getItem_t viewfuncGetItem,
+                      viewfunc_getNumItems_t viewfuncGetNumItems,
+                      viewfunc_accept_t viewfuncAccept) {
+    viewdata.viewfuncGetItem = viewfuncGetItem;
+    viewdata.viewfuncGetNumItems = viewfuncGetNumItems;
+    viewdata.viewfuncAccept = viewfuncAccept;
+}
+
+void view_review_show() {
+    view_review_show_impl();
 }
 
 void view_error_show() {
@@ -171,8 +199,4 @@ void view_error_show() {
     snprintf(viewdata.value, MAX_CHARS_PER_VALUE1_LINE, "SHOWING DATA");
     splitValueField();
     view_error_show_impl();
-}
-
-void view_sign_show() {
-    view_sign_show_impl();
 }
