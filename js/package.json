@@ -1,0 +1,66 @@
+{
+  "name": "@zondax/ledger-tendermint",
+  "version": "0.4.0",
+  "description": "Node API for Tendermint App (Ledger Nano S/X)",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zondax/ledger-tendermint.git"
+  },
+  "keywords": [
+    "Ledger",
+    "Javascript",
+    "Tendermint"
+  ],
+  "author": "Zondax GmbH",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/zondax/ledger-tendermint/issues"
+  },
+  "homepage": "https://github.com/zondax/ledger-tendermint",
+  "dependencies": {
+    "@babel/runtime": "^7.12.5",
+    "@zondax/ledger": "^0.4.0",
+    "@ledgerhq/hw-transport": "^5.34.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.8",
+    "@babel/core": "^7.12.9",
+    "@babel/node": "^7.12.6",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.6.3",
+    "bip32": "^2.0.6",
+    "bip39": "^3.0.3",
+    "core-js": "^3.8.1",
+    "crypto-js": "4.0.0",
+    "eslint": "^7.15.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "index.js": "^0.0.3",
+    "jest": "^26.6.3",
+    "jest-serial-runner": "^1.1.0",
+    "prettier": "^2.2.1"
+  },
+  "scripts": {
+    "build": "babel src  --copy-files --out-dir dist"
+  },
+  "moduleDirectories": [
+    "node_modules",
+    "dist"
+  ],
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
