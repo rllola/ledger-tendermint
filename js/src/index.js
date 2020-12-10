@@ -17,7 +17,7 @@
 
 import {CLA, INS, PKLEN,} from "./coin";
 import {CHUNK_SIZE, ERROR_CODE, getVersion, signSendChunk,} from "./common";
-import {errorCodeToString, P1_VALUES, processErrorResponse, serializePath} from "@zondax/ledger";
+import {errorCodeToString, P1_VALUES, processErrorResponse, serializePath,} from "@zondax/ledger";
 
 function processGetAddrResponse(response) {
   let partialResponse = response;
