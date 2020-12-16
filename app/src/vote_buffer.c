@@ -14,6 +14,7 @@
 *  limitations under the License.
 ********************************************************************************/
 
+#include <zxmacros.h>
 #include "buffering.h"
 #include "vote_buffer.h"
 

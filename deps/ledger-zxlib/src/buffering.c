@@ -56,7 +56,9 @@ int buffering_append(uint8_t *data, int length) {
             // If RAM is not big enough copy memory to flash
             ram.in_use = 0;
             flash.in_use = 1;
+            zemu_log_stack("RAM>>FLASH");
             if (ram.pos > 0) {
+                zemu_log_stack("RAM Migrate");
                 buffering_append(ram.data, ram.pos);
             }
             int num_bytes = buffering_append(data, length);
@@ -69,6 +71,7 @@ int buffering_append(uint8_t *data, int length) {
             MEMCPY_NV(flash.data + flash.pos, data, (size_t) length);
             flash.pos += length;
         } else {
+            zemu_log_stack("FLASH FULL");
             return 0;
         }
     }

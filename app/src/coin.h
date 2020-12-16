@@ -38,8 +38,10 @@ typedef enum {
     ED25519 = 1
 } sigtype_t;
 
-#define MENU_MAIN_APP_LINE1     "Tendermint"
-#define MENU_MAIN_APP_LINE2     "Validator"
+#define MENU_MAIN_APP_LINE1                 "Tendermint"
+#define MENU_MAIN_APP_LINE2                 "Ready"
+#define APPVERSION_LINE1                    "Tendermint"
+#define APPVERSION_LINE2                    "v" APPVERSION
 
 extern sigtype_t current_sigtype;
 

@@ -104,8 +104,6 @@ describe('Standard', function () {
                 "hex",
             );
 
-            console.log("ABOUT TO SIGN! ")
-
             // do not wait here..
             const signatureRequest = app.sign(path, txBlob);
             // Wait until we are not in the main menu
