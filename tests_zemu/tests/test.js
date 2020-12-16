@@ -104,17 +104,14 @@ describe('Standard', function () {
                 "hex",
             );
 
-            const pkResponse = await app.getAddressAndPubKey(path);
-            console.log(pkResponse);
-            expect(pkResponse.returnCode).toEqual(0x9000);
-            expect(pkResponse.errorMessage).toEqual("No errors");
+            console.log("ABOUT TO SIGN! ")
 
             // do not wait here..
             const signatureRequest = app.sign(path, txBlob);
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot());
 
-            //await sim.compareSnapshotsAndAccept(".", "sign_basic", 12);
+            // await sim.compareSnapshotsAndAccept(".", "sign_basic", 12);
 
             let resp = await signatureRequest;
             console.log(resp);

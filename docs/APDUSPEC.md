@@ -101,7 +101,7 @@ When starting the app, height and round will not be initialized. The first signa
 | Field | Type     | Content                | Expected |
 | ----- | -------- | ---------------------- | -------- |
 | CLA   | byte (1) | Application Identifier | 0x56     |
-| INS   | byte (1) | Instruction ID         | 0x03     |
+| INS   | byte (1) | Instruction ID         | 0x02     |
 | P1    | byte (1) | Packet Current Index   | ignored  |
 | P2    | byte (1) | Packet Total Count     | ignored  |
 | L     | byte (1) | Bytes in payload       | 0        |

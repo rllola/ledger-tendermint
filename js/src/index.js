@@ -133,7 +133,6 @@ export default class TendermintApp {
 
   async getAddressAndPubKey(path) {
     const serializedPath = serializePath(path);
-    console.log(serializedPath);
 
     return this.transport
       .send(CLA, INS.GET_PUBKEY, P1_VALUES.ONLY_RETRIEVE, 0, serializedPath, [0x9000])
@@ -154,6 +153,7 @@ export default class TendermintApp {
 
   async sign(path, message) {
     return this.signGetChunks(path, message).then((chunks) => {
+      console.log(chunks[0])
       return this.signSendChunk(1, chunks.length, chunks[0]).then(async (response) => {
         let result = {
           returnCode: response.returnCode,

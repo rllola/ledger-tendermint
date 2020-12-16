@@ -132,7 +132,9 @@ bool process_chunk(volatile uint32_t *tx, uint32_t rx) {
 
 void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
     uint16_t sw = 0;
-
+    
+    zemu_log_stack("Hi Laura!");
+    
     BEGIN_TRY
     {
         TRY
