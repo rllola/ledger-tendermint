@@ -52,15 +52,12 @@ export async function signSendChunk(app, chunkIdx, chunkNum, chunk) {
       }
 
       let signatureCompact = null;
-      let signatureDER = null;
       if (response.length > 2) {
-        signatureCompact = response.slice(0, 65);
-        signatureDER = response.slice(65, response.length - 2);
+        signatureCompact = response.slice(0, 64);
       }
 
       return {
         signatureCompact,
-        signatureDER,
         returnCode: returnCode,
         errorMessage: errorMessage,
       };

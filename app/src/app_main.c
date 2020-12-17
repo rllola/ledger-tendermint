@@ -110,36 +110,37 @@ bool initializeBip32(uint8_t *depth, uint32_t path[10], uint32_t rx, uint32_t of
 }
 
 bool process_chunk(volatile uint32_t *tx, uint32_t rx) {
-    int packageIndex = G_io_apdu_buffer[OFFSET_P1];
-    int packageCount = G_io_apdu_buffer[OFFSET_P2];
-    char buffer[100];
+    const uint8_t payloadType = G_io_apdu_buffer[OFFSET_PAYLOAD_TYPE];
 
-    uint16_t offset = OFFSET_DATA;
-    if (rx < offset) {
+    if (G_io_apdu_buffer[OFFSET_P2] != 0) {
+        THROW(APDU_CODE_INVALIDP1P2);
+    }
+
+    if (rx < OFFSET_DATA) {
         THROW(APDU_CODE_WRONG_LENGTH);
     }
 
-    snprintf(buffer, sizeof(buffer), "Packet %d/%d", packageIndex, packageCount);
-    zemu_log_stack(buffer);
-
-    if (packageIndex == 1) {
-        zemu_log_stack("Vote: Init");
-        vote_initialize();
-        vote_reset();
+    uint32_t appended;
+    switch (payloadType) {
+        case 0:
+            vote_initialize();
+            vote_reset();
+            return false;
+        case 1:
+            appended = vote_append(&(G_io_apdu_buffer[OFFSET_DATA]), rx - OFFSET_DATA);
+            if (appended != rx - OFFSET_DATA) {
+                THROW(APDU_CODE_OUTPUT_BUFFER_TOO_SMALL);
+            }
+            return false;
+        case 2:
+            appended = vote_append(&(G_io_apdu_buffer[OFFSET_DATA]), rx - OFFSET_DATA);
+            if (appended != rx - OFFSET_DATA) {
+                THROW(APDU_CODE_OUTPUT_BUFFER_TOO_SMALL);
+            }
+            return true;
     }
 
-    uint32_t appended = vote_append(G_io_apdu_buffer + offset, rx - offset);
-    if (appended != rx - offset) {
-        snprintf(buffer, sizeof(buffer), "RX1: %d", rx - offset);
-        zemu_log_stack(buffer);
-
-        snprintf(buffer, sizeof(buffer), "RX2: %d", appended);
-        zemu_log_stack(buffer);
-
-        THROW(APDU_CODE_OUTPUT_BUFFER_TOO_SMALL);
-    }
-
-    return packageIndex == packageCount;
+    THROW(APDU_CODE_INVALIDP1P2);
 }
 
 void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {

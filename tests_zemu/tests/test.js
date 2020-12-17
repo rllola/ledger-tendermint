@@ -18,6 +18,9 @@ import jest, {expect} from "jest";
 import Zemu from "@zondax/zemu";
 import TendermintApp from "@zondax/ledger-tendermint";
 
+const crypto = require('crypto');
+const secp256k1 = require('secp256k1');
+
 const Resolve = require("path").resolve;
 const APP_PATH = Resolve("../app/bin/app.elf");
 
@@ -103,24 +106,49 @@ describe('Standard', function () {
                 "210801110100000000000000190100000000000000220b088092b8c398feffffff01",
                 "hex",
             );
+            
+            const pkResponse = await app.getAddressAndPubKey(path);
+            console.log(pkResponse)
+
+            await Zemu.sleep(2000);
 
             // do not wait here..
-            const signatureRequest = app.sign(path, txBlob);
+            const signatureRequestInit = app.sign(path, txBlob);
             // Wait until we are not in the main menu
-            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot());
+            //await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot());
+            await Zemu.sleep(2000);
 
-            // await sim.compareSnapshotsAndAccept(".", "sign_basic", 12);
+            await sim.clickRight();
+
+            let respInit = await signatureRequestInit;
+            console.log(respInit);
+            
+            const txBlob2 = Buffer.from(
+              "210801111000000000000000190200000000000000220b088092b8c398feffffff01",
+              "hex",
+            );
+
+            expect(respInit.returnCode).toEqual(0x9000);
+            expect(respInit.errorMessage).toEqual("No errors");
+            
+            const signatureRequest = app.sign(path, txBlob2);
+            // Wait until we are not in the main menu
+            //await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot());
+            await Zemu.sleep(2000);
+
+            //await sim.clickRight();
 
             let resp = await signatureRequest;
             console.log(resp);
-
-            expect(resp.returnCode).toEqual(0x9000);
-            expect(resp.errorMessage).toEqual("No errors");
+            
+            console.log(resp.signatureCompact.toString('hex'));
+            console.log(resp.signatureCompact.length);
 
             // Verify signature
-            const pk = Uint8Array.from(pkResponse.compressed_pk)
-            const digest = getDigest( txBlob );
-            const signature = secp256k1.signatureImport(Uint8Array.from(resp.signature_der));
+            const pk = Uint8Array.from(pkResponse.publicKey)
+            const digest = crypto.createHash('sha512').update(txBlob2).digest();
+            console.log(digest)
+            const signature = Uint8Array.from(resp.signatureCompact);
             const signatureOk = secp256k1.ecdsaVerify(signature, digest, pk);
             expect(signatureOk).toEqual(true);
         } finally {

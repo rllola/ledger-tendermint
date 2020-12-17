@@ -16,8 +16,9 @@
     "zondax"
   ],
   "dependencies": {
+    "@zondax/ledger-tendermint": "^0.4.0",
     "@zondax/zemu": "^0.10.0",
-    "@zondax/ledger-tendermint": "^0.4.0"
+    "tiny-secp256k1": "^1.1.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",

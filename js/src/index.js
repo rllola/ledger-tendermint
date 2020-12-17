@@ -159,7 +159,6 @@ export default class TendermintApp {
           returnCode: response.returnCode,
           errorMessage: response.errorMessage,
           signatureCompact: null,
-          signatureDER: null,
         };
 
         for (let i = 1; i < chunks.length; i += 1) {
@@ -175,7 +174,6 @@ export default class TendermintApp {
           errorMessage: result.errorMessage,
           // ///
           signatureCompact: result.signatureCompact,
-          signatureDER: result.signatureDER,
         };
       }, processErrorResponse);
     }, processErrorResponse);
