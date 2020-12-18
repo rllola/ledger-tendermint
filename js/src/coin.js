@@ -6,4 +6,4 @@ export const INS = {
   SIGN: 0x02,
 };
 
-export const PKLEN = 65;
+export const PKLEN = 32;

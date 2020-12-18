@@ -19,7 +19,7 @@ import Zemu from "@zondax/zemu";
 import TendermintApp from "@zondax/ledger-tendermint";
 
 const crypto = require('crypto');
-const secp256k1 = require('secp256k1');
+const ed25519 = require("ed25519-supercop");
 
 const Resolve = require("path").resolve;
 const APP_PATH = Resolve("../app/bin/app.elf");
@@ -84,7 +84,7 @@ describe('Standard', function () {
 
             // REVIEW: why it returning an empty string as an address ?
             const expected_address_string = '';
-            const expected_pk = '17483e0883cf71e2fe4e12f42d1448d06f4274a73b9b6f560c5ed01a327452769000';
+            const expected_pk = '17483e0883cf71e2fe4e12f42d1448d06f4274a73b9b6f560c5ed01a32745276';
 
             expect(resp.address).toEqual(expected_address_string);
             expect(resp.publicKey.toString('hex')).toEqual(expected_pk);
@@ -141,15 +141,10 @@ describe('Standard', function () {
             let resp = await signatureRequest;
             console.log(resp);
             
-            console.log(resp.signatureCompact.toString('hex'));
-            console.log(resp.signatureCompact.length);
 
             // Verify signature
-            const pk = Uint8Array.from(pkResponse.publicKey)
             const digest = crypto.createHash('sha512').update(txBlob2).digest();
-            console.log(digest)
-            const signature = Uint8Array.from(resp.signatureCompact);
-            const signatureOk = secp256k1.ecdsaVerify(signature, digest, pk);
+            const signatureOk = ed25519.verify(resp.signatureCompact, digest, pkResponse.publicKey);
             expect(signatureOk).toEqual(true);
         } finally {
             await sim.close();

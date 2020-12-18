@@ -18,7 +18,7 @@
   "dependencies": {
     "@zondax/ledger-tendermint": "^0.4.0",
     "@zondax/zemu": "^0.10.0",
-    "tiny-secp256k1": "^1.1.6"
+    "ed25519-supercop": "^2.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
@@ -37,7 +37,6 @@
     "eslint-plugin-jest": "^23.20.0",
     "eslint-plugin-prettier": "^3.1.4",
     "jest": "26.2.2",
-    "jest-serial-runner": "^1.1.0",
-    "secp256k1": "^4.0.2"
+    "jest-serial-runner": "^1.1.0"
   }
 }
