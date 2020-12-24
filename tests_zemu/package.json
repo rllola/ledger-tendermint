@@ -6,7 +6,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "test:advance": "jest --detectOpenHandles tests/vote.test.js"
   },
   "repository": {
     "type": "git",
