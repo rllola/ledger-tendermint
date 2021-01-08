@@ -133,8 +133,7 @@ describe('Standard', function () {
             
             const signatureRequest = app.sign(path, txBlob2);
             // Wait until we are not in the main menu
-            //await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot());
-            await Zemu.sleep(2000);
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot());
 
             //await sim.clickRight();
 
